@@ -136,8 +136,7 @@ fi
 # Update the package list and upgrade existing packages
 if ! check_status "packages_installed"; then
   # Bootstrap 'pkg' if it's not installed
-  iocage exec "${JAIL_NAME}" "ASSUME_ALWAYS_YES=yes pkg bootstrap"
-  iocage exec "${JAIL_NAME}" "pkg update && pkg upgrade -y"
+  iocage exec "${JAIL_NAME}" "ASSUME_ALWAYS_YES=yes pkg update && ASSUME_ALWAYS_YES=yes pkg upgrade -y"
 
   # Install PHP and required modules
   PKG_LIST="
