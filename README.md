@@ -1,22 +1,40 @@
 # freenas-iocage-heimdall
-Script to create a FreeNAS jail and install [Heimdall Dashboard](https://heimdall.site/) in it
+Modified version of [Dan's script](https://github.com/danb35/freenas-iocage-heimdall) to install the [Heimdall Dashboard](https://heimdall.site/) on FreeBSD/TrueNas 13.2
 
 # Installation
-Change to a convenient directory, clone the repository using `git clone https://github.com/danb35/freenas-iocage-heimdall`, change to the freenas-iocage-heimdall directory, and create a configuration file called `heimdall-config` with your favorite text editor (if you don't have a favorite text editor, `nano` is a good choice--run `nano heimdall-config`).  Then run the script with `script heimdall.log ./heimdall-jail.sh`.
+- Go to Shell in TrueNas dashboard
+- Download the script `wget https://raw.githubusercontent.com/BenjaminNelan/freenas-iocage-heimdall/master/heimdall-jail.sh`
+- Make the script executable `chmod +x heimdall-jail.sh`
+- Optionally create a config file `nano heimdall-config` (see configuration options below)
+- Run the script `./heimdall-jail.sh`
+- If any issues occur, you can resolve them and run the script again, the `heimdall.status` file keeps track of where it was up to and attempts to resume from before the error occurred.
+- Once complete, heimdall will be accessible at `JAIL_NAME.local` - if you haven't configured anything it will default to `heimdall.local`
 
 ## Configuration options
-In its minimal form, the configuration file would look like this:
-```
-JAIL_IP="192.168.1.78"
-DEFAULT_GW_IP="192.168.1.1"
-POOL_PATH="/mnt/tank"
-```
+**JAIL_NAME**
+Name of the jail. Defaults to 'heimdall'
 
-* JAIL_IP:  The IP address to assign the jail.  You may optionally specify a netmask in CIDR notion.  If none is specified, the default is /24.  Values of less than 8 bits or more than 30 bits will also result in a 24-bit netmask.
-* DEFAULT_GW_IP:  The IP address of your default gateway.
-* POOL_PATH:  The path to your main data pool (e.g., `/mnt/tank`).  The Caddyfile and Heimdall installation files (i.e., the web pages themselves) will be stored there, in $POOL_PATH/apps/heimdall.  If you have more than one pool, choose the one you want to use for this purpose.
-* FILE:  Optional.  The filename to download, which identifies the version of Heimdall to download.  Default is 2.4.9.  To check for a more recent release, see the [Heimdall release page](https://github.com/linuxserver/Heimdall/releases).  As of this writing (2 April 2022), updates are very frequent; if a more recent version has been released, set this variable to the full file name of the download, e.g., `FILE="v2.5.1.tar.gz"`.
-* JAIL_NAME:  Optional.  The name of the jail.  If not given, will default to "heimdall".
+**JAIL_IP**
+Address that heimdall will be accessible at. Defaults to automatic IP using DHCP since this script also sets up mdns - you should be able to access heimdall at `http://JAIL_NAME.local`
+
+The IP address to assign the jail. You may optionally specify a netmask in CIDR notion.
+
+**DEFAULT_GW_IP**
+Gateway used by the jail. Defaults to same gateway used by TrueNas.
+
+**POOL_PATH**
+Pool path to store heimdall installation on your TrueNas, eg. `/mnt/mypool/heimdall`. Defaults to storing data within the jail, this means deleting the jail deletes any heimdall data.
+
+**FILE**
+The filename to download, which identifies the version of Heimdall to download.  Default is "V2.5.8.tar.gz".  
+To check for a more recent release, see the [Heimdall release page](https://github.com/linuxserver/Heimdall/releases).
+
+**PHP_VERSION**
+Version of PHP to install. Defaults to "83".
+As of writing, TrueNas running 13.2 uses php83 - this script may not work on older or newer versions without adjusting this. (Debugging: If you're having issues installing double check that the latest php versions have the same modules attempting to be installed `PKG_LIST`, php8 for instance bundles openssl, so the module is not installed separately as it was in older php versions)
+
+**RELEASE**
+Release for the jail to be based on. Defaults to "13.2-RELEASE"
 
 ## Post-install configuration
 This script uses the [Caddy](https://caddyserver.com/) web server, which supports automatic HTTPS, reverse proxying, and many other powerful features.  It is configured using a Caddyfile, which is stored at `/usr/local/www/Caddyfile` in your jail, and under `/apps/heimdall/` on your main data pool.  You can edit it as desired to enable these or other features.  For further information, see [my Caddy script](https://github.com/danb35/freenas-iocage-caddy), specifically the included `Caddyfile.example`, or the [Caddy docs](https://caddyserver.com/docs/caddyfile).
@@ -41,4 +59,4 @@ If you're using self-signed certs, or a local certificate authority, for any of 
 * Exit and restart the jail
 
 # Support
-Questions and discussion should be directed to https://forum.freenas-community.org/t/install-heimdall-dashboard-in-a-jail-script-freenas-11-2/35
+Further support at https://forum.freenas-community.org/t/install-heimdall-dashboard-in-a-jail-script-freenas-11-2/35
