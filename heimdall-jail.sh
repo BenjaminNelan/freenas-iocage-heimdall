@@ -317,4 +317,13 @@ else
   echo "mdns already setup, skipping"
 fi
 
+#--------------------------------------------------------------------------------------------
+# For some reason have to run this to fix server error, even though these commands have already been run.
+# See https://github.com/danb35/freenas-iocage-heimdall/issues/5
+# Will look into this at some point..
+iocage exec "${JAIL_NAME}" chown www:www /usr/local/www/Caddyfile
+iocage exec "${JAIL_NAME}" chown -R www:www /usr/local/www/html/
+iocage exec "${JAIL_NAME}" service caddy restart
+
 echo "Script complete"
+echo "You may choose to cleanup using rm heimdall*"
